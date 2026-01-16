@@ -20,7 +20,7 @@ const AnalysisItemSchema = z.object({
     score: z.number().min(1).max(10).describe('Score from 1-10 for the category.'),
 });
 
-export const GenerateMoatSummaryOutputSchema = z.object({
+const GenerateMoatSummaryOutputSchema = z.object({
     brandAndPricingPower: AnalysisItemSchema.describe('Analysis of brand strength and pricing power.'),
     marketEntryBarriers: AnalysisItemSchema.describe('Analysis of barriers to entry for competitors.'),
     customerRetention: AnalysisItemSchema.describe('Analysis of customer switching costs and retention advantages.'),
