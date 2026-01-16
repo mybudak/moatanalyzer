@@ -5,7 +5,7 @@ import { GoogleAuthProvider, signInWithRedirect } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
 const GoogleIcon = () => (
@@ -20,17 +20,24 @@ const GoogleIcon = () => (
 export default function SignInForm() {
     const { toast } = useToast();
     const [isSigningIn, setIsSigningIn] = useState(false);
+    const [hostname, setHostname] = useState('');
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            setHostname(window.location.hostname);
+        }
+    }, []);
 
     const handleGoogleSignIn = async () => {
         setIsSigningIn(true);
         const provider = new GoogleAuthProvider();
         try {
             await signInWithRedirect(auth, provider);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error signing in with Google:', error);
             toast({
                 title: 'Sign-in failed',
-                description: 'Could not sign you in with Google. Please try again.',
+                description: error.message || 'Could not sign you in with Google. Please try again.',
                 variant: 'destructive',
             });
             setIsSigningIn(false);
@@ -51,6 +58,23 @@ export default function SignInForm() {
                             {isSigningIn ? 'Redirecting...' : 'Sign in with Google'}
                         </Button>
                     </div>
+                     {hostname && (
+                        <div className="mt-4 rounded-lg border bg-card p-4 text-card-foreground shadow-sm">
+                            <h3 className="font-semibold text-lg">Action Required</h3>
+                            <p className="text-sm text-muted-foreground mt-2">
+                                To enable Google Sign-In, you need to add your development domain to the list of authorized domains in your Firebase project.
+                            </p>
+                            <p className="text-sm text-muted-foreground mt-2">
+                                Please copy the following domain:
+                            </p>
+                            <code className="mt-2 block w-full break-all rounded-md bg-muted p-2 text-sm text-muted-foreground">
+                                {hostname}
+                            </code>
+                             <p className="text-sm text-muted-foreground mt-2">
+                                Then, go to your Firebase Console, navigate to <strong>Authentication &gt; Settings &gt; Authorized domains</strong>, and add it to the list.
+                            </p>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </main>
