@@ -1,10 +1,12 @@
 'use client';
 
 import { auth } from '@/lib/firebase';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithRedirect } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
 
 const GoogleIcon = () => (
     <svg className="mr-2 h-4 w-4" viewBox="0 0 48 48">
@@ -17,11 +19,13 @@ const GoogleIcon = () => (
 
 export default function SignInForm() {
     const { toast } = useToast();
+    const [isSigningIn, setIsSigningIn] = useState(false);
 
     const handleGoogleSignIn = async () => {
+        setIsSigningIn(true);
         const provider = new GoogleAuthProvider();
         try {
-            await signInWithPopup(auth, provider);
+            await signInWithRedirect(auth, provider);
         } catch (error) {
             console.error('Error signing in with Google:', error);
             toast({
@@ -29,6 +33,7 @@ export default function SignInForm() {
                 description: 'Could not sign you in with Google. Please try again.',
                 variant: 'destructive',
             });
+            setIsSigningIn(false);
         }
     };
 
@@ -41,9 +46,9 @@ export default function SignInForm() {
                 </CardHeader>
                 <CardContent>
                     <div className="flex flex-col items-center space-y-4">
-                        <Button onClick={handleGoogleSignIn} className="w-full bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 shadow-sm">
-                            <GoogleIcon />
-                            Sign in with Google
+                        <Button onClick={handleGoogleSignIn} disabled={isSigningIn} className="w-full bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 shadow-sm">
+                            {isSigningIn ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon />}
+                            {isSigningIn ? 'Redirecting...' : 'Sign in with Google'}
                         </Button>
                     </div>
                 </CardContent>
