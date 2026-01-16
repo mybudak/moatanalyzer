@@ -39,8 +39,6 @@ const generateMoatSummaryFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    // Add one short, one-sentence summary of what you have generated to the 'progress' field in the output.
-    output!.summary = `Moat analysis summary generated for ${input.ticker}.`;
     return output!;
   }
 );
