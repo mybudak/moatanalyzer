@@ -2,46 +2,45 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, query, where, orderBy, limit, onSnapshot, DocumentData } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot, DocumentData } from 'firebase/firestore';
 import { MoatJob } from '@/lib/types';
 
-export const useLatestJob = (uid: string | undefined) => {
-  const [job, setJob] = useState<MoatJob | null>(null);
+export const useJobs = (uid: string | undefined) => {
+  const [jobs, setJobs] = useState<MoatJob[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!uid) {
       setLoading(false);
+      setJobs([]);
       return;
     }
 
     const q = query(
       collection(db, 'moat_jobs'),
       where('uid', '==', uid),
-      orderBy('createdAt', 'desc'),
-      limit(1)
+      orderBy('createdAt', 'desc')
     );
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      if (!querySnapshot.empty) {
-        const doc = querySnapshot.docs[0];
+      const jobsData: MoatJob[] = [];
+      querySnapshot.forEach((doc) => {
         const data = doc.data() as DocumentData;
-        setJob({
+        jobsData.push({
             id: doc.id,
             ...data,
             createdAt: data.createdAt?.toDate(),
         } as MoatJob);
-      } else {
-        setJob(null);
-      }
+      });
+      setJobs(jobsData);
       setLoading(false);
     }, (error) => {
-      console.error("Error fetching latest job:", error);
+      console.error("Error fetching jobs:", error);
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, [uid]);
 
-  return { job, loading };
+  return { jobs, loading };
 };

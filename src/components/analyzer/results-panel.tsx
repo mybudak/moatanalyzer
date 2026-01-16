@@ -1,7 +1,5 @@
 'use client';
 
-import { useAuth } from '@/hooks/use-auth';
-import { useLatestJob } from '@/hooks/use-latest-job';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Shield, ShieldCheck, ShieldX, AlertTriangle, Clock, TrendingUp, TrendingDown, Minus } from 'lucide-react';
@@ -96,9 +94,7 @@ const AnalysisItem = ({ title, score, analysis }: { title: string; score: number
 };
 
 
-export default function ResultsPanel() {
-  const { user } = useAuth();
-  const { job, loading } = useLatestJob(user?.uid);
+export default function ResultsPanel({ job, loading }: { job: MoatJob | null | undefined, loading: boolean }) {
 
   const renderContent = () => {
     if (loading) {
@@ -110,7 +106,7 @@ export default function ResultsPanel() {
     }
 
     if (!job) {
-      return <p className="p-8 text-center text-muted-foreground">No analysis jobs found. Enter a ticker to get started.</p>;
+      return <p className="p-8 text-center text-muted-foreground">Select an analysis from the history to view its details.</p>;
     }
     
     const analysisComplete = job.status === 'complete' && job.overallRating !== undefined;
@@ -157,7 +153,7 @@ export default function ResultsPanel() {
                         <CardTitle className="font-headline text-xl">Detailed Analysis</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Accordion type="single" collapsible className="w-full">
+                        <Accordion type="single" collapsible className="w-full" defaultValue="Brand & Pricing Power">
                             {job.brandAndPricingPower && <AnalysisItem title="Brand & Pricing Power" score={job.brandAndPricingPower.score} analysis={job.brandAndPricingPower.analysis} />}
                             {job.marketEntryBarriers && <AnalysisItem title="Market Entry Barriers" score={job.marketEntryBarriers.score} analysis={job.marketEntryBarriers.analysis} />}
                             {job.customerRetention && <AnalysisItem title="Customer Retention" score={job.customerRetention.score} analysis={job.customerRetention.analysis} />}
@@ -204,10 +200,10 @@ export default function ResultsPanel() {
   };
 
   return (
-    <Card className="shadow-lg">
+    <Card className="shadow-lg h-full">
       <CardHeader>
-        <CardTitle className="font-headline text-2xl">Latest Analysis</CardTitle>
-        <CardDescription>Results from the most recent ticker analysis.</CardDescription>
+        <CardTitle className="font-headline text-2xl">Analysis Details</CardTitle>
+        <CardDescription>Results from the selected analysis.</CardDescription>
       </CardHeader>
       <CardContent>{renderContent()}</CardContent>
     </Card>
