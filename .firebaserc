@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "moatanalyzer-dev",
+    "dev": "moatanalyzer-dev",
+    "prod": "moatanalyzer-prod"
+  }
+}
