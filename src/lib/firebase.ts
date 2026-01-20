@@ -11,20 +11,8 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-let app: FirebaseApp | null = null;
-let auth: Auth | null = null;
-let db: Firestore | null = null;
+const app: FirebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig as any);
+const auth: Auth = getAuth(app);
+const db: Firestore = getFirestore(app);
 
-const isFirebaseConfigured = Object.values(firebaseConfig).every(Boolean);
-
-if (isFirebaseConfigured) {
-  app = getApps().length ? getApp() : initializeApp(firebaseConfig as any);
-  auth = getAuth(app);
-  db = getFirestore(app);
-} else {
-    if (typeof window !== 'undefined') {
-        console.error("Firebase config is missing. Please check your .env file.");
-    }
-}
-
-export { app, auth, db, isFirebaseConfigured };
+export { app, auth, db };
