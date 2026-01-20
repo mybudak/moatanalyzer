@@ -2,9 +2,9 @@
 
 import { createContext, useState, useEffect, ReactNode } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
-import { auth, db } from '@/lib/firebase';
+import { auth, db, isFirebaseConfigured } from '@/lib/firebase';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { Loader2 } from 'lucide-react';
+import UnconfiguredApp from '@/components/auth/unconfigured-app';
 
 interface AuthContextType {
   user: User | null;
@@ -21,23 +21,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!isFirebaseConfigured || !auth) {
+        setLoading(false);
+        return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const userRef = doc(db, 'users', user.uid);
-        const docSnap = await getDoc(userRef);
+        if (db) {
+            const userRef = doc(db, 'users', user.uid);
+            const docSnap = await getDoc(userRef);
 
-        if (!docSnap.exists()) {
-          try {
-            await setDoc(userRef, {
-              uid: user.uid,
-              email: user.email,
-              displayName: user.displayName,
-              photoURL: user.photoURL,
-              createdAt: serverTimestamp(),
-            });
-          } catch (error) {
-            console.error("Error creating user document:", error);
-          }
+            if (!docSnap.exists()) {
+              try {
+                await setDoc(userRef, {
+                  uid: user.uid,
+                  email: user.email,
+                  displayName: user.displayName,
+                  photoURL: user.photoURL,
+                  createdAt: serverTimestamp(),
+                });
+              } catch (error) {
+                console.error("Error creating user document:", error);
+              }
+            }
         }
         setUser(user);
       } else {
@@ -49,12 +56,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    )
+  if (!isFirebaseConfigured) {
+    return <UnconfiguredApp />;
   }
 
   return (
