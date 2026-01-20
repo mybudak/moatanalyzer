@@ -153,7 +153,17 @@ export default function ResultsPanel({ job, loading }: { job: MoatJob | null | u
                         <CardTitle className="font-headline text-xl">Detailed Analysis</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Accordion type="single" collapsible className="w-full" defaultValue="Brand & Pricing Power">
+                        <Accordion
+                            type="multiple"
+                            className="w-full"
+                            defaultValue={[
+                                "Brand & Pricing Power",
+                                "Market Entry Barriers",
+                                "Customer Retention",
+                                "Competitive Threats",
+                                "Scale-Driven Cost Efficiency"
+                            ]}
+                        >
                             {job.brandAndPricingPower && <AnalysisItem title="Brand & Pricing Power" score={job.brandAndPricingPower.score} analysis={job.brandAndPricingPower.analysis} />}
                             {job.marketEntryBarriers && <AnalysisItem title="Market Entry Barriers" score={job.marketEntryBarriers.score} analysis={job.marketEntryBarriers.analysis} />}
                             {job.customerRetention && <AnalysisItem title="Customer Retention" score={job.customerRetention.score} analysis={job.customerRetention.analysis} />}
