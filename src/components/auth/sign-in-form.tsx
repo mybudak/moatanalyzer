@@ -48,7 +48,7 @@ export default function SignInForm() {
   const { toast } = useToast();
   const [isSigningInWithGoogle, setIsSigningInWithGoogle] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [isSignUp, setIsSignUp] = useState(true);
+  const [isSignUp, setIsSignUp] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
